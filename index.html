@@ -14,59 +14,53 @@
 
         body {
             margin: 0;
-            background: linear-gradient(135deg, #0b2c4d, #123d6a);
-            color: #fff;
+            background: #eef3fb;
         }
 
         header {
-            padding: 25px;
             background: #1f4fd8;
+            color: #fff;
+            padding: 20px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 22px;
-        }
-
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: auto;
-            padding: 20px;
+            padding: 25px;
         }
 
         .card {
             background: #fff;
-            color: #333;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, .15);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .12);
+            margin-bottom: 30px;
         }
 
         textarea {
             width: 100%;
-            min-height: 90px;
-            padding: 12px;
-            font-size: 15px;
-            border-radius: 8px;
+            min-height: 100px;
+            padding: 14px;
+            border-radius: 10px;
             border: 1px solid #ccc;
             resize: none;
+            font-size: 15px;
         }
 
         .actions {
             display: flex;
             justify-content: space-between;
             margin-top: 15px;
+            gap: 12px;
             flex-wrap: wrap;
-            gap: 10px;
         }
 
         button {
-            padding: 12px 18px;
-            border-radius: 8px;
+            padding: 12px 20px;
+            border-radius: 10px;
             border: none;
             font-weight: bold;
             cursor: pointer;
@@ -83,19 +77,25 @@
             color: #fff;
         }
 
+        .btn-green:disabled {
+            background: #b7e6c9;
+            cursor: not-allowed;
+        }
+
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
         }
 
         .contact {
-            border: 2px solid transparent;
-            border-radius: 12px;
-            padding: 18px;
             background: #fff;
-            color: #333;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, .1);
+            border: 2px solid transparent;
             position: relative;
+            cursor: pointer;
         }
 
         .contact.selected {
@@ -105,20 +105,40 @@
 
         .contact input {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 18px;
+            right: 18px;
             transform: scale(1.3);
         }
 
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: #1f4fd8;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
         .contact h4 {
-            margin: 0 0 5px;
+            margin: 5px 0;
+        }
+
+        .contact small {
+            color: #666;
+            display: block;
+            margin-bottom: 4px;
         }
 
         footer {
             text-align: center;
             padding: 20px;
             font-size: 13px;
-            opacity: .8;
+            color: #666;
         }
     </style>
 </head>
@@ -126,7 +146,7 @@
 <body>
 
     <header>
-        <h1>📱 Directorio WhatsApp – IPS</h1>
+        <h2>📱 Directorio WhatsApp – IPS</h2>
         <div id="count">0 seleccionados</div>
     </header>
 
@@ -134,12 +154,12 @@
 
         <!-- MENSAJE -->
         <div class="card">
-            <h2>✈️ Componer Mensaje</h2>
+            <h3>✈️ Componer Mensaje</h3>
             <textarea id="message" placeholder="Escribe tu mensaje aquí..."></textarea>
 
             <div class="actions">
                 <button class="btn-blue" onclick="toggleAll()">Seleccionar / Deseleccionar Todos</button>
-                <button class="btn-green" onclick="sendWhatsApp()">Enviar por WhatsApp</button>
+                <button class="btn-green" id="sendBtn" disabled onclick="sendWhatsApp()">Enviar por WhatsApp</button>
             </div>
         </div>
 
@@ -154,72 +174,62 @@
 
     <script>
         const contacts = [
-            { name: "Yhamir Chávarri", phone: "+51922109147" },
-            { name: "Emilio Chávarri", phone: "+51975385583" },
-            { name: "Sonia Zarzosa", phone: "+51947938310" },
-            { name: "Juan Pérez", phone: "+521234567893" },
-            { name: "Laura Gómez", phone: "+521234567894" },
-            { name: "Pedro Sánchez", phone: "+521234567895" },
-            { name: "Sofía Ramírez", phone: "+521234567896" },
-            { name: "Miguel Torres", phone: "+521234567897" },
-            { name: "Elena Vargas", phone: "+521234567898" }
+            { name: "Yhamir Chávarri", phone: "+51922109147", email: "yhamir@mail.com", address: "Av. Central 123" },
+            { name: "Emilio Chávarri", phone: "+51975385583", email: "emilio@mail.com", address: "Calle Norte 456" },
+            { name: "Sonia Zarzosa", phone: "+51947938310", email: "sonia@mail.com", address: "Jr. Lima 789" },
+            { name: "Juan Pérez", phone: "+521234567893", email: "juan@mail.com", address: "Paseo Sur 321" },
+            { name: "Laura Gómez", phone: "+521234567894", email: "laura@mail.com", address: "Calle Este 654" },
+            { name: "Pedro Sánchez", phone: "+521234567895", email: "pedro@mail.com", address: "Av. Oeste 987" }
         ];
 
         const container = document.getElementById("contacts");
         const counter = document.getElementById("count");
+        const sendBtn = document.getElementById("sendBtn");
 
         function render() {
             container.innerHTML = "";
             contacts.forEach((c, i) => {
                 container.innerHTML += `
-                <div class="contact" onclick="toggle(${i})" id="c${i}">
-                    <input type="checkbox" id="chk${i}">
-                    <h4>${c.name}</h4>
-                    <div>${c.phone}</div>
-                </div>
-            `;
+        <div class="contact" id="c${i}" onclick="toggle(${i})">
+          <input type="checkbox" id="chk${i}">
+          <div class="avatar">${c.name[0]}</div>
+          <h4>${c.name}</h4>
+          <small>📞 ${c.phone}</small>
+          <small>📧 ${c.email}</small>
+          <small>📍 ${c.address}</small>
+        </div>
+      `;
             });
-            updateCount();
+            updateState();
         }
 
         function toggle(i) {
             const chk = document.getElementById("chk" + i);
             chk.checked = !chk.checked;
-            document.getElementById("c" + i)
-                .classList.toggle("selected", chk.checked);
-            updateCount();
+            document.getElementById("c" + i).classList.toggle("selected", chk.checked);
+            updateState();
         }
 
         function toggleAll() {
-            const allChecked = contacts.every((_, i) => document.getElementById("chk" + i).checked);
+            const all = contacts.every((_, i) => document.getElementById("chk" + i).checked);
             contacts.forEach((_, i) => {
-                document.getElementById("chk" + i).checked = !allChecked;
-                document.getElementById("c" + i)
-                    .classList.toggle("selected", !allChecked);
+                document.getElementById("chk" + i).checked = !all;
+                document.getElementById("c" + i).classList.toggle("selected", !all);
             });
-            updateCount();
+            updateState();
         }
 
-        function updateCount() {
+        function updateState() {
             const selected = contacts.filter((_, i) => document.getElementById("chk" + i).checked).length;
             counter.textContent = `${selected} seleccionados`;
+            sendBtn.disabled = selected === 0 || !document.getElementById("message").value.trim();
         }
+
+        document.getElementById("message").addEventListener("input", updateState);
 
         async function sendWhatsApp() {
             const message = document.getElementById("message").value.trim();
-            const phones = contacts
-                .filter((_, i) => document.getElementById("chk" + i).checked)
-                .map(c => c.phone);
-
-            if (!message) {
-                alert("Escribe un mensaje");
-                return;
-            }
-
-            if (phones.length === 0) {
-                alert("Selecciona al menos un contacto");
-                return;
-            }
+            const phones = contacts.filter((_, i) => document.getElementById("chk" + i).checked).map(c => c.phone);
 
             const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
                 method: "POST",
@@ -228,12 +238,7 @@
             });
 
             const data = await res.json();
-
-            if (data.success) {
-                alert("Mensajes enviados correctamente");
-            } else {
-                alert("Error al enviar mensajes");
-            }
+            alert(data.success ? "Mensajes enviados correctamente" : "Error al enviar");
         }
 
         render();
