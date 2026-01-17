@@ -222,14 +222,27 @@
         function updateState() {
             const selected = contacts.filter((_, i) => document.getElementById("chk" + i).checked).length;
             counter.textContent = `${selected} seleccionados`;
-            sendBtn.disabled = selected === 0 || !document.getElementById("message").value.trim();
+            sendBtn.disabled = selected === 0;
         }
 
         document.getElementById("message").addEventListener("input", updateState);
 
         async function sendWhatsApp() {
             const message = document.getElementById("message").value.trim();
+
+
+            if (!message) {
+                alert("Escribe un mensaje antes de enviar");
+                return;
+            }
+
             const phones = contacts.filter((_, i) => document.getElementById("chk" + i).checked).map(c => c.phone);
+
+
+            if (phones.length === 0) {
+                alert("Selecciona al menos un contacto");
+                return;
+            }
 
             const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
                 method: "POST",
