@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>IPS – iCUR@ Seguridad Integral</title>
+    <title>IPS – Directorio WhatsApp iCUR@</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
@@ -19,63 +19,106 @@
         }
 
         header {
-            padding: 40px 20px;
-            text-align: center;
+            padding: 25px;
+            background: #1f4fd8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         header h1 {
-            margin-bottom: 10px;
-            font-size: 32px;
-        }
-
-        header p {
-            max-width: 700px;
-            margin: auto;
-            opacity: 0.9;
+            margin: 0;
+            font-size: 22px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: auto;
             padding: 20px;
         }
 
         .card {
-            background: #ffffff;
+            background: #fff;
             color: #333;
             border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .15);
         }
 
-        h2 {
-            margin-top: 0;
-            color: #0b2c4d;
-        }
-
-        select,
-        button {
+        textarea {
             width: 100%;
+            min-height: 90px;
             padding: 12px;
             font-size: 15px;
-            margin-top: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         button {
-            background: #25D366;
-            color: white;
-            border: none;
+            padding: 12px 18px;
             border-radius: 8px;
+            border: none;
             font-weight: bold;
             cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-blue {
+            background: #1f4fd8;
+            color: #fff;
+        }
+
+        .btn-green {
+            background: #25D366;
+            color: #fff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .contact {
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 18px;
+            background: #fff;
+            color: #333;
+            position: relative;
+        }
+
+        .contact.selected {
+            border-color: #1f4fd8;
+            background: #f4f7ff;
+        }
+
+        .contact input {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            transform: scale(1.3);
+        }
+
+        .contact h4 {
+            margin: 0 0 5px;
         }
 
         footer {
             text-align: center;
             padding: 20px;
-            font-size: 14px;
-            opacity: 0.85;
+            font-size: 13px;
+            opacity: .8;
         }
     </style>
 </head>
@@ -83,55 +126,25 @@
 <body>
 
     <header>
-        <h1>IPS – Plataforma iCUR@</h1>
-        <p>
-            Sistema integral para la gestión de Seguridad Patrimonial,
-            accesos, incidencias, activos y mantenimiento institucional.
-        </p>
+        <h1>📱 Directorio WhatsApp – IPS</h1>
+        <div id="count">0 seleccionados</div>
     </header>
 
     <div class="container">
 
+        <!-- MENSAJE -->
         <div class="card">
-            <h2>¿Qué es iCUR@?</h2>
-            <p>
-                iCUR@ es una plataforma informática centralizada que permite a instituciones educativas
-                gestionar de manera eficiente la seguridad patrimonial, control de accesos, incidencias,
-                inventarios, mantenimiento y riesgos, asegurando trazabilidad y control en tiempo real.
-            </p>
-        </div>
+            <h2>✈️ Componer Mensaje</h2>
+            <textarea id="message" placeholder="Escribe tu mensaje aquí..."></textarea>
 
-        <div class="card">
-            <h2>Módulos Principales</h2>
-            <div class="grid">
-                <ul>
-                    <li>Control de Accesos (visitas, proveedores, eventos)</li>
-                    <li>Gestión de Incidencias</li>
-                    <li>Gestión de Riesgos</li>
-                </ul>
-                <ul>
-                    <li>Mantenimiento de Seguridad</li>
-                    <li>Gestión de Extintores</li>
-                    <li>Inventarios y Activos</li>
-                </ul>
+            <div class="actions">
+                <button class="btn-blue" onclick="toggleAll()">Seleccionar / Deseleccionar Todos</button>
+                <button class="btn-green" onclick="sendWhatsApp()">Enviar por WhatsApp</button>
             </div>
         </div>
 
-        <div class="card">
-            <h2>Solicitar Información</h2>
-
-            <p>Selecciona el área de tu interés y nuestro equipo se contactará contigo.</p>
-
-            <select id="interes">
-                <option value="iCUR@ - Seguridad Integral">iCUR@ - Seguridad Integral</option>
-                <option value="Control de Accesos">Control de Accesos</option>
-                <option value="Gestión de Incidencias">Gestión de Incidencias</option>
-                <option value="Gestión de Riesgos">Gestión de Riesgos</option>
-                <option value="Mantenimiento de Seguridad">Mantenimiento de Seguridad</option>
-            </select>
-
-            <button onclick="enviarWhatsApp()">Enviar solicitud</button>
-        </div>
+        <!-- CONTACTOS -->
+        <div class="grid" id="contacts"></div>
 
     </div>
 
@@ -140,38 +153,90 @@
     </footer>
 
     <script>
-        async function enviarWhatsApp() {
-            const interes = document.getElementById('interes').value;
+        const contacts = [
+            { name: "Ana Martínez", phone: "+521234567890" },
+            { name: "Carlos Rodríguez", phone: "+521234567891" },
+            { name: "María López", phone: "+521234567892" },
+            { name: "Juan Pérez", phone: "+521234567893" },
+            { name: "Laura Gómez", phone: "+521234567894" },
+            { name: "Pedro Sánchez", phone: "+521234567895" },
+            { name: "Sofía Ramírez", phone: "+521234567896" },
+            { name: "Miguel Torres", phone: "+521234567897" },
+            { name: "Elena Vargas", phone: "+521234567898" }
+        ];
 
-            const payload = {
-                message: `Hola, estoy interesado en ${interes}. Quisiera recibir más información sobre iCUR@.`,
-                phones: [
-                    "+51996381644"
-                ]
-            };
+        const container = document.getElementById("contacts");
+        const counter = document.getElementById("count");
 
-            try {
-                const response = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
+        function render() {
+            container.innerHTML = "";
+            contacts.forEach((c, i) => {
+                container.innerHTML += `
+                <div class="contact" onclick="toggle(${i})" id="c${i}">
+                    <input type="checkbox" id="chk${i}">
+                    <h4>${c.name}</h4>
+                    <div>${c.phone}</div>
+                </div>
+            `;
+            });
+            updateCount();
+        }
 
-                const data = await response.json();
+        function toggle(i) {
+            const chk = document.getElementById("chk" + i);
+            chk.checked = !chk.checked;
+            document.getElementById("c" + i)
+                .classList.toggle("selected", chk.checked);
+            updateCount();
+        }
 
-                if (data.success) {
-                    alert("Solicitud enviada correctamente por WhatsApp");
-                } else {
-                    alert("No se pudo enviar el mensaje");
-                }
+        function toggleAll() {
+            const allChecked = contacts.every((_, i) => document.getElementById("chk" + i).checked);
+            contacts.forEach((_, i) => {
+                document.getElementById("chk" + i).checked = !allChecked;
+                document.getElementById("c" + i)
+                    .classList.toggle("selected", !allChecked);
+            });
+            updateCount();
+        }
 
-            } catch (error) {
-                console.error(error);
-                alert("Error de conexión con el servidor");
+        function updateCount() {
+            const selected = contacts.filter((_, i) => document.getElementById("chk" + i).checked).length;
+            counter.textContent = `${selected} seleccionados`;
+        }
+
+        async function sendWhatsApp() {
+            const message = document.getElementById("message").value.trim();
+            const phones = contacts
+                .filter((_, i) => document.getElementById("chk" + i).checked)
+                .map(c => c.phone);
+
+            if (!message) {
+                alert("Escribe un mensaje");
+                return;
+            }
+
+            if (phones.length === 0) {
+                alert("Selecciona al menos un contacto");
+                return;
+            }
+
+            const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message, phones })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                alert("Mensajes enviados correctamente");
+            } else {
+                alert("Error al enviar mensajes");
             }
         }
+
+        render();
     </script>
 
 </body>
