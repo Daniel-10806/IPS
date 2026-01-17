@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>IPS – iCUR@ Seguridad Integral</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #0b2c4d, #123d6a);
+            color: #fff;
+        }
+
+        header {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        header p {
+            max-width: 700px;
+            margin: auto;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            color: #333;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #0b2c4d;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        ul {
+            padding-left: 18px;
+        }
+
+        select,
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 15px;
+            margin-top: 12px;
+        }
+
+        select {
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #1ebe5d;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            opacity: 0.85;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>IPS – Plataforma iCUR@</h1>
+        <p>
+            Sistema integral para la gestión de Seguridad Patrimonial,
+            accesos, incidencias, activos y mantenimiento institucional.
+        </p>
+    </header>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>¿Qué es iCUR@?</h2>
+            <p>
+                iCUR@ es una plataforma informática centralizada que permite a instituciones educativas
+                gestionar de manera eficiente la seguridad patrimonial, control de accesos, incidencias,
+                inventarios, mantenimiento y riesgos, asegurando trazabilidad y control en tiempo real.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>Módulos Principales</h2>
+            <div class="grid">
+                <ul>
+                    <li>Control de Accesos (visitas, proveedores, eventos)</li>
+                    <li>Gestión de Incidencias</li>
+                    <li>Gestión de Riesgos</li>
+                </ul>
+                <ul>
+                    <li>Mantenimiento de Seguridad</li>
+                    <li>Gestión de Extintores</li>
+                    <li>Inventarios y Activos</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Solicitar Información</h2>
+
+            <p>Selecciona el área de tu interés y contáctanos directamente por WhatsApp.</p>
+
+            <select id="interes">
+                <option value="iCUR@ - Seguridad Integral">iCUR@ - Seguridad Integral</option>
+                <option value="Control de Accesos">Control de Accesos</option>
+                <option value="Gestión de Incidencias">Gestión de Incidencias</option>
+                <option value="Gestión de Riesgos">Gestión de Riesgos</option>
+                <option value="Mantenimiento de Seguridad">Mantenimiento de Seguridad</option>
+            </select>
+
+            <button onclick="abrirWhatsApp()">Contactar por WhatsApp</button>
+        </div>
+
+    </div>
+
+    <footer>
+        © 2026 IPS – Innovación en Seguridad Patrimonial
+    </footer>
+
+    <script>
+        function abrirWhatsApp() {
+            const numeroIPS = '51975385583'; // número oficial IPS (formato internacional sin +)
+            const interes = document.getElementById('interes').value;
+
+            const mensaje = `
+Hola, estoy interesado en ${interes}.
+Quisiera recibir más información sobre la plataforma iCUR@ y sus funcionalidades.
+            `.trim();
+
+            const url = `https://wa.me/${numeroIPS}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
+    </script>
+
+</body>
+
+</html>
