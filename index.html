@@ -2,9 +2,9 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>IPS – Directorio WhatsApp iCUR@</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <style>
         * {
@@ -46,7 +46,6 @@
             padding: 14px;
             border-radius: 10px;
             border: 1px solid #ccc;
-            resize: none;
             font-size: 15px;
         }
 
@@ -55,7 +54,6 @@
             justify-content: space-between;
             margin-top: 15px;
             gap: 12px;
-            flex-wrap: wrap;
         }
 
         button {
@@ -64,7 +62,11 @@
             border: none;
             font-weight: bold;
             cursor: pointer;
-            font-size: 14px;
+            transition: all .25s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
         }
 
         .btn-blue {
@@ -80,6 +82,7 @@
         .btn-green:disabled {
             background: #b7e6c9;
             cursor: not-allowed;
+            transform: none;
         }
 
         .grid {
@@ -94,8 +97,13 @@
             padding: 20px;
             box-shadow: 0 8px 18px rgba(0, 0, 0, .1);
             border: 2px solid transparent;
-            position: relative;
             cursor: pointer;
+            transition: all .25s ease;
+            position: relative;
+        }
+
+        .contact:hover {
+            transform: translateY(-4px);
         }
 
         .contact.selected {
@@ -124,14 +132,46 @@
             margin-bottom: 10px;
         }
 
-        .contact h4 {
-            margin: 5px 0;
+        .contact small {
+            display: block;
+            color: #666;
+            margin-bottom: 4px;
         }
 
-        .contact small {
-            color: #666;
-            display: block;
-            margin-bottom: 4px;
+        /* LOADER */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, .85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #ccc;
+            border-top-color: #1f4fd8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .modal {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, .2);
+            max-width: 420px;
+            text-align: center;
         }
 
         footer {
@@ -152,7 +192,6 @@
 
     <div class="container">
 
-        <!-- MENSAJE -->
         <div class="card">
             <h3>✈️ Componer Mensaje</h3>
             <textarea id="message" placeholder="Escribe tu mensaje aquí..."></textarea>
@@ -163,9 +202,21 @@
             </div>
         </div>
 
-        <!-- CONTACTOS -->
         <div class="grid" id="contacts"></div>
 
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="spinner"></div>
+        <p>Enviando mensaje...</p>
+    </div>
+
+    <div class="overlay" id="result">
+        <div class="modal">
+            <h3>✅ Mensaje enviado</h3>
+            <p id="resultText"></p>
+            <button class="btn-blue" onclick="closeResult()">Aceptar</button>
+        </div>
     </div>
 
     <footer>
@@ -176,10 +227,7 @@
         const contacts = [
             { name: "Yhamir Chávarri", phone: "+51922109147", email: "yhamir@mail.com", address: "Av. Central 123" },
             { name: "Emilio Chávarri", phone: "+51975385583", email: "emilio@mail.com", address: "Calle Norte 456" },
-            { name: "Sonia Zarzosa", phone: "+51947938310", email: "sonia@mail.com", address: "Jr. Lima 789" },
-            { name: "Juan Pérez", phone: "+521234567893", email: "juan@mail.com", address: "Paseo Sur 321" },
-            { name: "Laura Gómez", phone: "+521234567894", email: "laura@mail.com", address: "Calle Este 654" },
-            { name: "Pedro Sánchez", phone: "+521234567895", email: "pedro@mail.com", address: "Av. Oeste 987" }
+            { name: "Sonia Zarzosa", phone: "+51947938310", email: "sonia@mail.com", address: "Jr. Lima 789" }
         ];
 
         const container = document.getElementById("contacts");
@@ -190,15 +238,14 @@
             container.innerHTML = "";
             contacts.forEach((c, i) => {
                 container.innerHTML += `
-        <div class="contact" id="c${i}" onclick="toggle(${i})">
-          <input type="checkbox" id="chk${i}">
-          <div class="avatar">${c.name[0]}</div>
-          <h4>${c.name}</h4>
-          <small>📞 ${c.phone}</small>
-          <small>📧 ${c.email}</small>
-          <small>📍 ${c.address}</small>
-        </div>
-      `;
+      <div class="contact" id="c${i}" onclick="toggle(${i})">
+        <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
+        <div class="avatar">${c.name[0]}</div>
+        <h4>${c.name}</h4>
+        <small>📞 ${c.phone}</small>
+        <small>📧 ${c.email}</small>
+        <small>📍 ${c.address}</small>
+      </div>`;
             });
             updateState();
         }
@@ -225,33 +272,27 @@
             sendBtn.disabled = selected === 0;
         }
 
-        document.getElementById("message").addEventListener("input", updateState);
-
         async function sendWhatsApp() {
-            const message = document.getElementById("message").value.trim();
+            const msg = document.getElementById("message").value.trim();
+            if (!msg) return alert("Escribe un mensaje");
 
+            const phones = contacts.filter((_, i) => document.getElementById("chk" + i).checked);
+            document.getElementById("overlay").style.display = "flex";
 
-            if (!message) {
-                alert("Escribe un mensaje antes de enviar");
-                return;
-            }
-
-            const phones = contacts.filter((_, i) => document.getElementById("chk" + i).checked).map(c => c.phone);
-
-
-            if (phones.length === 0) {
-                alert("Selecciona al menos un contacto");
-                return;
-            }
-
-            const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
+            await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message, phones })
+                body: JSON.stringify({ message: msg, phones: phones.map(p => p.phone) })
             });
 
-            const data = await res.json();
-            alert(data.success ? "Mensajes enviados correctamente" : "Error al enviar");
+            document.getElementById("overlay").style.display = "none";
+            document.getElementById("resultText").textContent =
+                "Mensaje enviado a: " + phones.map(p => p.name).join(", ");
+            document.getElementById("result").style.display = "flex";
+        }
+
+        function closeResult() {
+            document.getElementById("result").style.display = "none";
         }
 
         render();
