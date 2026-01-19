@@ -271,21 +271,16 @@
             color: #374151;
         }
 
-        /* ===== MICRO-INTERACCIONES ===== */
-
-        /* Transiciones globales */
         button,
         .contact {
             transition: all 0.25s ease;
         }
 
-        /* Hover cards */
         .contact:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 28px rgba(0, 0, 0, .15);
         }
 
-        /* Card seleccionada (feedback visual fuerte) */
         .contact.selected {
             animation: pulseSelect 0.25s ease;
         }
@@ -343,6 +338,31 @@
 
         button[title] {
             position: relative;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #16a34a;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .25);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all .35s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error {
+            background: #dc2626;
         }
     </style>
 </head>
@@ -513,6 +533,16 @@
             }
         }
 
+        function showToast(message, type = "success") {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.className = "toast show" + (type === "error" ? " error" : "");
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3500);
+        }
+
         function sendSingle(i) {
             const chk = document.getElementById("chk" + i);
             chk.checked = true;
@@ -563,14 +593,13 @@
 
         async function sendWhatsApp() {
             const msg = message.value.trim();
-            if (!msg) return alert("Escribe un mensaje");
+            if (!msg) return showToast("Escribe un mensaje", "error");
 
             overlay.style.display = "flex";
 
             sendBtn.disabled = true;
             sendBtn.querySelector("span").textContent = "Enviando...";
 
-            // ⏱️ Forzar cierre visual en 5 segundos
             const forceClose = setTimeout(() => {
                 overlay.style.display = "none";
                 sendBtn.querySelector("span").textContent = "Enviar por WhatsApp";
@@ -609,9 +638,11 @@
                 document.querySelectorAll('.contact').forEach(c => c.classList.remove("selected"));
                 updateSendButtonState();
 
+                showToast("Mensajes enviados correctamente");
+
             } catch (e) {
-                alert("Error al enviar mensajes");
                 console.error(e);
+                showToast("Error al enviar mensajes", "error");
             } finally {
                 clearTimeout(forceClose);
                 overlay.style.display = "none";
@@ -627,6 +658,8 @@
             c.style.animation = "pulseSelect .25s ease";
         });
     </script>
+
+    <div id="toast" class="toast">Mensajes enviados correctamente</div>
 
 </body>
 
