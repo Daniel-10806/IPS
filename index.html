@@ -85,7 +85,9 @@
 
         .contact {
             display: flex;
-            align-items: center;
+            position: relative;
+            flex-direction: column;
+            align-items: stretch;
             gap: 12px;
             background: #fff;
             padding: 14px;
@@ -93,6 +95,57 @@
             box-shadow: 0 6px 14px rgba(0, 0, 0, .08);
             border: 2px solid transparent;
             cursor: pointer
+        }
+
+        .contact input[type="checkbox"] {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            transform: scale(1.1);
+        }
+
+        .contact-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-info {
+            line-height: 1.35;
+        }
+
+        .contact-info small {
+            display: block;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .contact-info .meta {
+            margin-top: 6px;
+        }
+
+        .send-btn {
+            margin-top: 10px;
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .send-btn:hover {
+            background: #12863e;
+        }
+
+        .send-btn img {
+            width: 16px;
+            filter: invert(1);
         }
 
         .contact.selected {
@@ -278,22 +331,28 @@
             contacts.forEach((c, i) => {
                 container.innerHTML += `
 <div class="contact" id="c${i}" onclick="toggle(${i})">
+
   <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
 
-  <div class="avatar">${c.name[0]}</div>
+  <div class="contact-header">
+    <div class="avatar">${c.name[0]}</div>
+    <div>
+        <strong>${c.name}</strong>
+        <small>📞 ${formatPhone(c.phone)}</small>
+    </div>
+  </div>
 
-  <div class="contact-info">
-    <strong>${c.name}</strong><br>
-    <small>📞 ${formatPhone(c.phone)}</small><br>
-    <small>📧 ${c.email}</small><br>
+  <div class="contact-info meta">
+    <small>📧 ${c.email}</small>
     <small>📍 ${c.address}</small>
   </div>
 
-  <button class="wa-btn"
-    title="Enviar mensaje individual"
+  <button class="send-btn"
     onclick="event.stopPropagation(); sendSingle(${i})">
     <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg">
+    Enviar a ${c.name.split(" ")[0]}
   </button>
+
 </div>`;
             });
         }
