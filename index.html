@@ -46,7 +46,6 @@
             padding: 14px;
             border-radius: 10px;
             border: 1px solid #ccc;
-            font-size: 15px;
         }
 
         .actions {
@@ -62,11 +61,6 @@
             border: none;
             font-weight: bold;
             cursor: pointer;
-            transition: all .25s ease;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
         }
 
         .btn-blue {
@@ -122,8 +116,23 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 18px;
             margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f4f7ff;
+            text-align: left;
         }
 
         .overlay {
@@ -133,7 +142,6 @@
             display: none;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
             z-index: 1000;
         }
 
@@ -150,14 +158,6 @@
             to {
                 transform: rotate(360deg);
             }
-        }
-
-        .modal {
-            background: #fff;
-            padding: 25px;
-            border-radius: 12px;
-            max-width: 420px;
-            text-align: center;
         }
 
         footer {
@@ -183,126 +183,117 @@
             <textarea id="message" maxlength="500" placeholder="Máx. 500 caracteres..."></textarea>
 
             <div class="actions">
-                <button class="btn-blue" onclick="toggleAll()">Seleccionar / Deseleccionar Todos</button>
-                <button class="btn-green" id="sendBtn" disabled onclick="sendWhatsApp()">Enviar por WhatsApp</button>
+                <button class="btn-blue" onclick="toggleAll()">Seleccionar Todos</button>
+                <button class="btn-green" id="sendBtn" disabled onclick="sendWhatsApp()">Enviar</button>
             </div>
         </div>
 
         <div class="grid" id="contacts"></div>
+
+        <div class="card">
+            <h3>📜 Historial de Envíos</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Mensaje</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="history"></tbody>
+            </table>
+        </div>
+
     </div>
 
     <div class="overlay" id="overlay">
         <div class="spinner"></div>
-        <p>Enviando mensaje...</p>
     </div>
 
-    <div class="overlay" id="result">
-        <div class="modal">
-            <h3>✅ Resultado del envío</h3>
-            <p id="resultText"></p>
-            <button class="btn-blue" onclick="closeResult()">Aceptar</button>
-        </div>
-    </div>
-
-    <footer>
-        © 2026 IPS – Innovación en Seguridad Patrimonial
-    </footer>
+    <footer>© 2026 IPS – Innovación en Seguridad Patrimonial</footer>
 
     <script>
         const messageLog = [];
 
         const contacts = [
-            { name: "Yhamir Chávarri", phone: "+51 922109147" },
-            { name: "Emilio Chávarri", phone: "+51 975385583" },
-            { name: "Sonia Zarzosa", phone: "+51 947938310" },
-            { name: "Daniel Chávarri", phone: "+51 946118245" },
+            { name: "Daniel Chávarri", phone: "+51946118245" }
         ];
 
         const container = document.getElementById("contacts");
         const counter = document.getElementById("count");
         const sendBtn = document.getElementById("sendBtn");
 
+        function formatPhone(p) {
+            return p.replace(/^(\+\d{2})(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3 $4");
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById("history");
+            tbody.innerHTML = "";
+            messageLog.forEach(l => {
+                const d = new Date(l.date);
+                tbody.innerHTML += `
+        <tr>
+            <td>${d.toLocaleDateString("es-PE")}</td>
+            <td>${d.toLocaleTimeString("es-PE")}</td>
+            <td>${l.name}</td>
+            <td>${formatPhone(l.to)}</td>
+            <td>${l.message}</td>
+            <td style="color:green;font-weight:bold">ENVIADO</td>
+        </tr>`;
+            });
+        }
+
         function render() {
             container.innerHTML = "";
             contacts.forEach((c, i) => {
                 container.innerHTML += `
-                <div class="contact" id="c${i}" onclick="toggle(${i})">
-                    <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
-                    <div class="avatar">${c.name[0]}</div>
-                    <h4>${c.name}</h4>
-                    <small>📞 ${c.phone}</small>
-                </div>`;
+        <div class="contact" id="c${i}" onclick="toggle(${i})">
+            <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
+            <div class="avatar">${c.name[0]}</div>
+            <h4>${c.name}</h4>
+            <small>${formatPhone(c.phone)}</small>
+        </div>`;
             });
-            updateState();
         }
 
         function toggle(i) {
             const chk = document.getElementById("chk" + i);
             chk.checked = !chk.checked;
             document.getElementById("c" + i).classList.toggle("selected", chk.checked);
-            updateState();
-        }
-
-        function toggleAll() {
-            const all = contacts.every((_, i) => document.getElementById("chk" + i).checked);
-            contacts.forEach((_, i) => {
-                document.getElementById("chk" + i).checked = !all;
-                document.getElementById("c" + i).classList.toggle("selected", !all);
-            });
-            updateState();
-        }
-
-        function updateState() {
-            const selected = contacts.filter((_, i) => document.getElementById("chk" + i).checked).length;
-            counter.textContent = `${selected} seleccionados`;
-            sendBtn.disabled = selected === 0;
+            sendBtn.disabled = !chk.checked;
         }
 
         async function sendWhatsApp() {
-            const msg = document.getElementById("message").value.trim();
+            const msg = message.value.trim();
             if (!msg) return alert("Escribe un mensaje");
 
-            const selected = contacts.filter((_, i) => document.getElementById("chk" + i).checked);
-            document.getElementById("overlay").style.display = "flex";
+            overlay.style.display = "flex";
 
-            try {
-                const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: msg, phones: selected })
-                });
+            const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: msg, phones: contacts })
+            });
 
-                const data = await res.json();
+            const data = await res.json();
 
-                data.results.forEach(r => {
-                    if (r.status === "enviado") {
-                        messageLog.push({
-                            date: new Date().toISOString(),
-                            to: r.phone,
-                            name: r.name,
-                            message: msg
-                        });
-                    }
-                });
+            data.results.forEach(r => {
+                if (r.status === "enviado") {
+                    messageLog.push({
+                        date: r.date,
+                        to: r.phone,
+                        name: r.name,
+                        message: msg
+                    });
+                }
+            });
 
-                console.table(messageLog);
-
-                document.getElementById("resultText").innerHTML =
-                    `✔ Enviados: ${data.results.filter(r => r.status === "enviado").map(r => r.name).join(", ") || "—"}<br>
-                 ✖ Fallidos: ${data.results.filter(r => r.status === "error").map(r => r.name).join(", ") || "—"}`;
-
-                document.getElementById("result").style.display = "flex";
-
-            } catch (e) {
-                alert("Error enviando mensajes");
-                console.error(e);
-            } finally {
-                document.getElementById("overlay").style.display = "none";
-            }
-        }
-
-        function closeResult() {
-            document.getElementById("result").style.display = "none";
+            renderHistory();
+            overlay.style.display = "none";
         }
 
         render();
