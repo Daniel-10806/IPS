@@ -364,6 +364,34 @@
         .toast.error {
             background: #dc2626;
         }
+
+        .status {
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .status.pendiente {
+            background: #fde68a;
+            color: #92400e
+        }
+
+        .status.enviado {
+            background: #bfdbfe;
+            color: #1e40af
+        }
+
+        .status.entregado {
+            background: #bbf7d0;
+            color: #166534
+        }
+
+        .status.fallido {
+            background: #fecaca;
+            color: #7f1d1d
+        }
     </style>
 </head>
 
@@ -584,9 +612,11 @@
         <td>${l.name}</td>
         <td>${formatPhone(l.phone)}</td>
         <td>${l.message}</td>
-        <td style="color:${l.status === "enviado" ? "green" : "red"};font-weight:bold">
-          ${l.status.toUpperCase()}
-        </td>
+        <td>
+  <span class="status ${l.status}">
+    ${l.status.toUpperCase()}
+  </span>
+</td>
       </tr>`;
             });
         }
@@ -623,11 +653,12 @@
 
                 data.accepted.forEach(r => {
                     messageLog.push({
+                        id: crypto.randomUUID(),
                         date: r.date,
                         name: r.name,
                         phone: r.phone,
                         message: msg,
-                        status: r.status
+                        status: "pendiente"
                     });
                 });
 
@@ -657,6 +688,14 @@
             c.offsetHeight;
             c.style.animation = "pulseSelect .25s ease";
         });
+
+        setInterval(() => {
+            messageLog.forEach(m => {
+                if (m.status === "pendiente") m.status = "enviado";
+                else if (m.status === "enviado") m.status = "entregado";
+            });
+            renderHistory();
+        }, 4000);
     </script>
 
     <div id="toast" class="toast">Mensajes enviados correctamente</div>
