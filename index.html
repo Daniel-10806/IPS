@@ -227,21 +227,23 @@
         const sendBtn = document.getElementById("sendBtn")
         const overlay = document.getElementById("overlay")
 
-        const formatPhone = p => p.replace(/^(\+\d{2})(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3 $4")
+        function formatPhone(p = "") {
+            return p.replace(/^(\+\d{2})(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3 $4");
+        }
 
         function render() {
-            container.innerHTML = ""
+            container.innerHTML = "";
             contacts.forEach((c, i) => {
                 container.innerHTML += `
 <div class="contact" id="c${i}" onclick="toggle(${i})">
-<input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
-<div class="avatar">${c.name[0]}</div>
-<div class="contact-info">
-<strong>${c.name}</strong><br>
-<small>${formatPhone(c.phone)}</small>
-</div>
-</div>`
-            })
+    <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
+    <div class="avatar">${c.name[0]}</div>
+    <div class="contact-info">
+        <strong>${c.name}</strong><br>
+        <small>${formatPhone(c.phone)}</small>
+    </div>
+</div>`;
+            });
         }
 
         function toggle(i) {
@@ -260,42 +262,62 @@
         }
 
         function renderHistory() {
-            history.innerHTML = ""
+            history.innerHTML = "";
+
             messageLog.forEach(l => {
-                const d = new Date(l.date)
+                const d = new Date(l.date);
+
                 history.innerHTML += `
-<tr>
-<td>${d.toLocaleDateString("es-PE")}</td>
-<td>${d.toLocaleTimeString("es-PE")}</td>
-<td>${l.name}</td>
-<td>${formatPhone(l.phone)}</td>
-<td>${l.message}</td>
-<td style="color:green;font-weight:bold">ENVIADO</td>
-</tr>`
-            })
+      <tr>
+        <td>${d.toLocaleDateString("es-PE")}</td>
+        <td>${d.toLocaleTimeString("es-PE")}</td>
+        <td>${l.name}</td>
+        <td>${formatPhone(l.phone)}</td>
+        <td>${l.message}</td>
+        <td style="color:${l.status === "enviado" ? "green" : "red"};font-weight:bold">
+          ${l.status.toUpperCase()}
+        </td>
+      </tr>`;
+            });
         }
 
         async function sendWhatsApp() {
-            const msg = message.value.trim()
-            if (!msg) return alert("Escribe un mensaje")
-            overlay.style.display = "flex"
+            const msg = message.value.trim();
+            if (!msg) return alert("Escribe un mensaje");
 
-            const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: msg, phones: contacts })
-            })
+            overlay.style.display = "flex";
 
-            const data = await res.json()
+            try {
+                const selected = contacts.filter((_, i) =>
+                    document.getElementById("chk" + i).checked
+                );
 
-            data.results.forEach(r => {
-                if (r.status === "enviado") {
-                    messageLog.push({ ...r, message: msg })
-                }
-            })
+                const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: msg, phones: selected })
+                });
 
-            renderHistory()
-            overlay.style.display = "none"
+                const data = await res.json();
+
+                data.results.forEach(r => {
+                    messageLog.push({
+                        date: r.date,
+                        name: r.name,
+                        phone: r.phone,
+                        message: msg,
+                        status: r.status
+                    });
+                });
+
+                renderHistory();
+
+            } catch (e) {
+                alert("Error al enviar mensajes");
+                console.error(e);
+            } finally {
+                overlay.style.display = "none";
+            }
         }
 
         render()
