@@ -567,19 +567,28 @@
 
             overlay.style.display = "flex";
 
+            sendBtn.disabled = true;
+            sendBtn.querySelector("span").textContent = "Enviando...";
+
+            // ⏱️ Forzar cierre visual en 5 segundos
+            const forceClose = setTimeout(() => {
+                overlay.style.display = "none";
+                sendBtn.querySelector("span").textContent = "Enviar por WhatsApp";
+            }, 5000);
+
             try {
                 const selected = contacts.filter((_, i) =>
                     document.getElementById("chk" + i).checked
                 );
 
-                sendBtn.disabled = true;
-                sendBtn.querySelector("span").textContent = "Enviando...";
-
-                const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: msg, phones: selected })
-                });
+                const res = await fetch(
+                    "https://ips-whatsapp-backend.onrender.com/send-whatsapp",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: msg, phones: selected })
+                    }
+                );
 
                 const data = await res.json();
 
@@ -604,6 +613,7 @@
                 alert("Error al enviar mensajes");
                 console.error(e);
             } finally {
+                clearTimeout(forceClose);
                 overlay.style.display = "none";
                 sendBtn.querySelector("span").textContent = "Enviar por WhatsApp";
             }
