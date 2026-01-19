@@ -167,6 +167,27 @@
             font-size: 13px;
             color: #666
         }
+
+        .wa-btn {
+            background: #25D366;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .wa-btn img {
+            width: 18px;
+            filter: invert(1);
+        }
+
+        .wa-btn:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 
@@ -237,11 +258,20 @@
                 container.innerHTML += `
 <div class="contact" id="c${i}" onclick="toggle(${i})">
     <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
+
     <div class="avatar">${c.name[0]}</div>
+
     <div class="contact-info">
         <strong>${c.name}</strong><br>
         <small>${formatPhone(c.phone)}</small>
     </div>
+
+    <button class="wa-btn"
+        title="Enviar mensaje individual"
+        onclick="event.stopPropagation(); sendSingle(${i})">
+        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg"
+             alt="WhatsApp">
+    </button>
 </div>`;
             });
         }
@@ -259,6 +289,12 @@
             document.getElementById("c0").classList.add("selected")
             sendBtn.disabled = false
             counter.textContent = "1 seleccionado"
+        }
+
+        function sendSingle(i) {
+            document.getElementById("chk" + i).checked = true;
+            toggle(i);
+            message.focus();
         }
 
         function renderHistory() {
