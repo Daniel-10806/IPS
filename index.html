@@ -9,12 +9,12 @@
     <style>
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif
         }
 
         body {
             margin: 0;
-            background: #eef3fb;
+            background: #eef3fb
         }
 
         header {
@@ -23,36 +23,35 @@
             padding: 20px 30px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: center
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: auto;
-            padding: 25px;
+            padding: 25px
         }
 
         .card {
             background: #fff;
             border-radius: 14px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, .12);
-            margin-bottom: 30px;
+            margin-bottom: 25px
         }
 
         textarea {
             width: 100%;
-            min-height: 100px;
+            min-height: 90px;
             padding: 14px;
             border-radius: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #ccc
         }
 
         .actions {
             display: flex;
             justify-content: space-between;
-            margin-top: 15px;
-            gap: 12px;
+            margin-top: 15px
         }
 
         button {
@@ -60,79 +59,65 @@
             border-radius: 10px;
             border: none;
             font-weight: bold;
-            cursor: pointer;
+            cursor: pointer
         }
 
         .btn-blue {
             background: #1f4fd8;
-            color: #fff;
+            color: #fff
         }
 
         .btn-green {
             background: #25D366;
-            color: #fff;
+            color: #fff
         }
 
         .btn-green:disabled {
             background: #b7e6c9;
-            cursor: not-allowed;
+            cursor: not-allowed
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px
         }
 
         .contact {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             background: #fff;
-            border-radius: 14px;
-            padding: 20px;
-            box-shadow: 0 8px 18px rgba(0, 0, 0, .1);
+            padding: 14px;
+            border-radius: 12px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, .08);
             border: 2px solid transparent;
-            cursor: pointer;
-            position: relative;
+            cursor: pointer
         }
 
         .contact.selected {
             border-color: #1f4fd8;
-            background: #f4f7ff;
-        }
-
-        .contact input {
-            position: absolute;
-            top: 18px;
-            right: 18px;
-            transform: scale(1.3);
+            background: #f4f7ff
         }
 
         .avatar {
-            width: 46px;
-            height: 46px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: #1f4fd8;
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-weight: bold
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .contact-info {
+            flex: 1
         }
 
-        th,
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background: #f4f7ff;
-            text-align: left;
+        .contact-info small {
+            color: #666
         }
 
         .overlay {
@@ -142,7 +127,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 1000
         }
 
         .spinner {
@@ -151,20 +136,36 @@
             border: 5px solid #ccc;
             border-top-color: #1f4fd8;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite
         }
 
         @keyframes spin {
             to {
-                transform: rotate(360deg);
+                transform: rotate(360deg)
             }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px
+        }
+
+        th {
+            background: #f4f7ff
         }
 
         footer {
             text-align: center;
             padding: 20px;
             font-size: 13px;
-            color: #666;
+            color: #666
         }
     </style>
 </head>
@@ -181,7 +182,6 @@
         <div class="card">
             <h3>✈️ Componer Mensaje</h3>
             <textarea id="message" maxlength="500" placeholder="Máx. 500 caracteres..."></textarea>
-
             <div class="actions">
                 <button class="btn-blue" onclick="toggleAll()">Seleccionar Todos</button>
                 <button class="btn-green" id="sendBtn" disabled onclick="sendWhatsApp()">Enviar</button>
@@ -216,87 +216,89 @@
     <footer>© 2026 IPS – Innovación en Seguridad Patrimonial</footer>
 
     <script>
-        const messageLog = [];
+        const contacts = [{ name: "Daniel Chávarri", phone: "+51946118245" },
+        { name: "Carlos Ibarra", phone: "+51921872052" },
+        { name: "Benjamin Cavero", phone: "+51996381644" },
+        ]
+        const messageLog = []
+        const container = document.getElementById("contacts")
+        const history = document.getElementById("history")
+        const counter = document.getElementById("count")
+        const sendBtn = document.getElementById("sendBtn")
+        const overlay = document.getElementById("overlay")
 
-        const contacts = [
-            { name: "Daniel Chávarri", phone: "+51946118245" }
-        ];
-
-        const container = document.getElementById("contacts");
-        const counter = document.getElementById("count");
-        const sendBtn = document.getElementById("sendBtn");
-
-        function formatPhone(p) {
-            return p.replace(/^(\+\d{2})(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3 $4");
-        }
-
-        function renderHistory() {
-            const tbody = document.getElementById("history");
-            tbody.innerHTML = "";
-            messageLog.forEach(l => {
-                const d = new Date(l.date);
-                tbody.innerHTML += `
-        <tr>
-            <td>${d.toLocaleDateString("es-PE")}</td>
-            <td>${d.toLocaleTimeString("es-PE")}</td>
-            <td>${l.name}</td>
-            <td>${formatPhone(l.to)}</td>
-            <td>${l.message}</td>
-            <td style="color:green;font-weight:bold">ENVIADO</td>
-        </tr>`;
-            });
-        }
+        const formatPhone = p => p.replace(/^(\+\d{2})(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3 $4")
 
         function render() {
-            container.innerHTML = "";
+            container.innerHTML = ""
             contacts.forEach((c, i) => {
                 container.innerHTML += `
-        <div class="contact" id="c${i}" onclick="toggle(${i})">
-            <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
-            <div class="avatar">${c.name[0]}</div>
-            <h4>${c.name}</h4>
-            <small>${formatPhone(c.phone)}</small>
-        </div>`;
-            });
+<div class="contact" id="c${i}" onclick="toggle(${i})">
+<input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
+<div class="avatar">${c.name[0]}</div>
+<div class="contact-info">
+<strong>${c.name}</strong><br>
+<small>${formatPhone(c.phone)}</small>
+</div>
+</div>`
+            })
         }
 
         function toggle(i) {
-            const chk = document.getElementById("chk" + i);
-            chk.checked = !chk.checked;
-            document.getElementById("c" + i).classList.toggle("selected", chk.checked);
-            sendBtn.disabled = !chk.checked;
+            const chk = document.getElementById("chk" + i)
+            chk.checked = !chk.checked
+            document.getElementById("c" + i).classList.toggle("selected", chk.checked)
+            sendBtn.disabled = !chk.checked
+            counter.textContent = chk.checked ? "1 seleccionado" : "0 seleccionados"
+        }
+
+        function toggleAll() {
+            contacts.forEach((_, i) => document.getElementById("chk" + i).checked = true)
+            document.getElementById("c0").classList.add("selected")
+            sendBtn.disabled = false
+            counter.textContent = "1 seleccionado"
+        }
+
+        function renderHistory() {
+            history.innerHTML = ""
+            messageLog.forEach(l => {
+                const d = new Date(l.date)
+                history.innerHTML += `
+<tr>
+<td>${d.toLocaleDateString("es-PE")}</td>
+<td>${d.toLocaleTimeString("es-PE")}</td>
+<td>${l.name}</td>
+<td>${formatPhone(l.phone)}</td>
+<td>${l.message}</td>
+<td style="color:green;font-weight:bold">ENVIADO</td>
+</tr>`
+            })
         }
 
         async function sendWhatsApp() {
-            const msg = message.value.trim();
-            if (!msg) return alert("Escribe un mensaje");
-
-            overlay.style.display = "flex";
+            const msg = message.value.trim()
+            if (!msg) return alert("Escribe un mensaje")
+            overlay.style.display = "flex"
 
             const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: msg, phones: contacts })
-            });
+            })
 
-            const data = await res.json();
+            const data = await res.json()
 
             data.results.forEach(r => {
                 if (r.status === "enviado") {
-                    messageLog.push({
-                        date: r.date,
-                        to: r.phone,
-                        name: r.name,
-                        message: msg
-                    });
+                    messageLog.push({ ...r, message: msg })
                 }
-            });
+            })
 
-            renderHistory();
-            overlay.style.display = "none";
+            renderHistory()
+            overlay.style.display = "none"
         }
 
-        render();
+        render()
     </script>
 
 </body>
