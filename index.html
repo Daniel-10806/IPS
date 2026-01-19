@@ -622,6 +622,7 @@
         }
 
         async function sendWhatsApp() {
+
             const msg = message.value.trim();
             if (!msg) return showToast("Escribe un mensaje", "error");
 
@@ -696,6 +697,31 @@
             });
             renderHistory();
         }, 4000);
+    </script>
+
+    <div class="card">
+        <h3>📊 KPI Mensajería</h3>
+        <p>Entregados: <span id="kpi-ok"></span></p>
+        <p>Fallidos: <span id="kpi-fail"></span></p>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io("https://ips-whatsapp-backend.onrender.com");
+
+        socket.on("status-update", data => {
+            const msg = messageLog.find(m => m.sid === data.messageSid);
+            if (msg) {
+                msg.status = data.status;
+                renderHistory();
+            }
+        });
+
+        const userRole = "operador";
+
+        if (userRole !== "supervisor") {
+            document.querySelector("#kpiCard").style.display = "none";
+        }
     </script>
 
     <div id="toast" class="toast">Mensajes enviados correctamente</div>
