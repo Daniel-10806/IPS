@@ -265,6 +265,11 @@
             height: 18px;
             filter: invert(1);
         }
+
+        .btn-toggle-off {
+            background: #e5e7eb;
+            color: #374151;
+        }
     </style>
 </head>
 
@@ -281,7 +286,7 @@
             <h3>✈️ Componer Mensaje</h3>
             <textarea id="message" maxlength="500" placeholder="Máx. 500 caracteres..."></textarea>
             <div class="actions">
-                <button class="btn-blue" onclick="toggleAll()">Seleccionar Todos</button>
+                <button class="btn-blue" id="toggleAllBtn" onclick="toggleAll()">Seleccionar Todos</button>
                 <button class="btn-green send-main-btn" id="sendBtn" disabled onclick="sendWhatsApp()">
                     <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg">
                     <span>Enviar por WhatsApp</span>
@@ -395,19 +400,40 @@
         }
 
         function toggleAll() {
-            const anyUnchecked = contacts.some((_, i) =>
-                !document.getElementById("chk" + i).checked
+            const toggleBtn = document.getElementById("toggleAllBtn");
+
+            const allSelected = contacts.every((_, i) =>
+                document.getElementById("chk" + i).checked
             );
 
             contacts.forEach((_, i) => {
                 const chk = document.getElementById("chk" + i);
                 const card = document.getElementById("c" + i);
 
-                chk.checked = anyUnchecked;
-                card.classList.toggle("selected", anyUnchecked);
+                chk.checked = !allSelected;
+                card.classList.toggle("selected", !allSelected);
             });
 
             updateSendButtonState();
+            updateToggleAllButton();
+        }
+
+        function updateToggleAllButton() {
+            const toggleBtn = document.getElementById("toggleAllBtn");
+
+            const allSelected = contacts.every((_, i) =>
+                document.getElementById("chk" + i).checked
+            );
+
+            if (allSelected) {
+                toggleBtn.textContent = "Deseleccionar Todos";
+                toggleBtn.classList.remove("btn-blue");
+                toggleBtn.classList.add("btn-toggle-off");
+            } else {
+                toggleBtn.textContent = "Seleccionar Todos";
+                toggleBtn.classList.remove("btn-toggle-off");
+                toggleBtn.classList.add("btn-blue");
+            }
         }
 
         function sendSingle(i) {
@@ -420,14 +446,16 @@
         }
 
         function updateSendButtonState() {
-            const anySelected = contacts.some((_, i) =>
+            const selectedCount = contacts.filter((_, i) =>
                 document.getElementById("chk" + i).checked
-            );
+            ).length;
 
-            sendBtn.disabled = !anySelected;
-            counter.textContent = anySelected
-                ? `${contacts.filter((_, i) => document.getElementById("chk" + i).checked).length} seleccionados`
+            sendBtn.disabled = selectedCount === 0;
+            counter.textContent = selectedCount
+                ? `${selectedCount} seleccionados`
                 : "0 seleccionados";
+
+            updateToggleAllButton();
         }
 
         function renderHistory() {
