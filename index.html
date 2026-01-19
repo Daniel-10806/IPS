@@ -241,6 +241,16 @@
         .wa-btn:hover {
             transform: scale(1.05);
         }
+
+        #history td,
+        #history th {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        #history td:nth-child(5) {
+            text-align: left;
+        }
     </style>
 </head>
 
@@ -258,7 +268,9 @@
             <textarea id="message" maxlength="500" placeholder="Máx. 500 caracteres..."></textarea>
             <div class="actions">
                 <button class="btn-blue" onclick="toggleAll()">Seleccionar Todos</button>
-                <button class="btn-green" id="sendBtn" disabled onclick="sendWhatsApp()">Enviar</button>
+                <button class="btn-green" id="sendBtn" disabled onclick="sendWhatsApp()"><img
+                        src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg">
+                    Enviar por WhatsApp</button>
             </div>
         </div>
 
@@ -366,10 +378,22 @@
         }
 
         function toggleAll() {
-            contacts.forEach((_, i) => document.getElementById("chk" + i).checked = true)
-            document.getElementById("c0").classList.add("selected")
-            sendBtn.disabled = false
-            counter.textContent = "1 seleccionado"
+            let anyUnchecked = contacts.some((_, i) =>
+                !document.getElementById("chk" + i).checked
+            );
+
+            contacts.forEach((_, i) => {
+                const chk = document.getElementById("chk" + i);
+                const card = document.getElementById("c" + i);
+
+                chk.checked = anyUnchecked;
+                card.classList.toggle("selected", anyUnchecked);
+            });
+
+            sendBtn.disabled = !anyUnchecked;
+            counter.textContent = anyUnchecked
+                ? `${contacts.length} seleccionados`
+                : "0 seleccionados";
         }
 
         function sendSingle(i) {
@@ -428,6 +452,7 @@
                 });
 
                 renderHistory();
+                message.value = "";
 
             } catch (e) {
                 alert("Error al enviar mensajes");
