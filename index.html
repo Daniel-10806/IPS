@@ -270,6 +270,80 @@
             background: #e5e7eb;
             color: #374151;
         }
+
+        /* ===== MICRO-INTERACCIONES ===== */
+
+        /* Transiciones globales */
+        button,
+        .contact {
+            transition: all 0.25s ease;
+        }
+
+        /* Hover cards */
+        .contact:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .15);
+        }
+
+        /* Card seleccionada (feedback visual fuerte) */
+        .contact.selected {
+            animation: pulseSelect 0.25s ease;
+        }
+
+        @keyframes pulseSelect {
+            0% {
+                transform: scale(0.98);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, .2);
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+
+        .btn-green:disabled {
+            opacity: 0.6;
+            box-shadow: none;
+            transform: none;
+        }
+
+        #toggleAllBtn {
+            transition: background-color .25s ease, color .25s ease, transform .2s ease;
+        }
+
+        .send-btn {
+            transition: all .2s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.03);
+        }
+
+        .overlay {
+            animation: fadeIn .2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        button[title] {
+            position: relative;
+        }
     </style>
 </head>
 
@@ -286,7 +360,10 @@
             <h3>✈️ Componer Mensaje</h3>
             <textarea id="message" maxlength="500" placeholder="Máx. 500 caracteres..."></textarea>
             <div class="actions">
-                <button class="btn-blue" id="toggleAllBtn" onclick="toggleAll()">Seleccionar Todos</button>
+                <button class="btn-blue" id="toggleAllBtn" onclick="toggleAll()"
+                    title="Selecciona o deselecciona todos los contactos">
+                    Seleccionar Todos
+                </button>
                 <button class="btn-green send-main-btn" id="sendBtn" disabled onclick="sendWhatsApp()">
                     <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg">
                     <span>Enviar por WhatsApp</span>
@@ -451,9 +528,15 @@
             ).length;
 
             sendBtn.disabled = selectedCount === 0;
+
+            counter.style.transform = "scale(1.1)";
             counter.textContent = selectedCount
                 ? `${selectedCount} seleccionados`
                 : "0 seleccionados";
+
+            setTimeout(() => {
+                counter.style.transform = "scale(1)";
+            }, 150);
 
             updateToggleAllButton();
         }
@@ -489,6 +572,9 @@
                     document.getElementById("chk" + i).checked
                 );
 
+                sendBtn.disabled = true;
+                sendBtn.querySelector("span").textContent = "Enviando...";
+
                 const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -497,7 +583,6 @@
 
                 const data = await res.json();
 
-                // REGISTRAR HISTORIAL AL INSTANTE
                 data.accepted.forEach(r => {
                     messageLog.push({
                         date: r.date,
@@ -511,7 +596,6 @@
                 renderHistory();
                 message.value = "";
 
-                // LIMPIAR SELECCIÓN
                 document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
                 document.querySelectorAll('.contact').forEach(c => c.classList.remove("selected"));
                 updateSendButtonState();
@@ -521,10 +605,17 @@
                 console.error(e);
             } finally {
                 overlay.style.display = "none";
+                sendBtn.querySelector("span").textContent = "Enviar por WhatsApp";
             }
         }
 
         render()
+
+        document.querySelectorAll('.contact').forEach(c => {
+            c.style.animation = "none";
+            c.offsetHeight;
+            c.style.animation = "pulseSelect .25s ease";
+        });
     </script>
 
 </body>
