@@ -265,133 +265,6 @@
             height: 18px;
             filter: invert(1);
         }
-
-        .btn-toggle-off {
-            background: #e5e7eb;
-            color: #374151;
-        }
-
-        button,
-        .contact {
-            transition: all 0.25s ease;
-        }
-
-        .contact:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, .15);
-        }
-
-        .contact.selected {
-            animation: pulseSelect 0.25s ease;
-        }
-
-        @keyframes pulseSelect {
-            0% {
-                transform: scale(0.98);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(0, 0, 0, .2);
-        }
-
-        button:active:not(:disabled) {
-            transform: scale(0.96);
-        }
-
-        .btn-green:disabled {
-            opacity: 0.6;
-            box-shadow: none;
-            transform: none;
-        }
-
-        #toggleAllBtn {
-            transition: background-color .25s ease, color .25s ease, transform .2s ease;
-        }
-
-        .send-btn {
-            transition: all .2s ease;
-        }
-
-        .send-btn:hover {
-            transform: scale(1.03);
-        }
-
-        .overlay {
-            animation: fadeIn .2s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        button[title] {
-            position: relative;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #16a34a;
-            color: white;
-            padding: 14px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, .25);
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all .35s ease;
-            z-index: 2000;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .toast.error {
-            background: #dc2626;
-        }
-
-        .status {
-            font-weight: bold;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            display: inline-block;
-        }
-
-        .status.pendiente {
-            background: #fde68a;
-            color: #92400e
-        }
-
-        .status.enviado {
-            background: #bfdbfe;
-            color: #1e40af
-        }
-
-        .status.entregado {
-            background: #bbf7d0;
-            color: #166534
-        }
-
-        .status.fallido {
-            background: #fecaca;
-            color: #7f1d1d
-        }
     </style>
 </head>
 
@@ -408,10 +281,7 @@
             <h3>✈️ Componer Mensaje</h3>
             <textarea id="message" maxlength="500" placeholder="Máx. 500 caracteres..."></textarea>
             <div class="actions">
-                <button class="btn-blue" id="toggleAllBtn" onclick="toggleAll()"
-                    title="Selecciona o deselecciona todos los contactos">
-                    Seleccionar Todos
-                </button>
+                <button class="btn-blue" onclick="toggleAll()">Seleccionar Todos</button>
                 <button class="btn-green send-main-btn" id="sendBtn" disabled onclick="sendWhatsApp()">
                     <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg">
                     <span>Enviar por WhatsApp</span>
@@ -525,50 +395,19 @@
         }
 
         function toggleAll() {
-            const toggleBtn = document.getElementById("toggleAllBtn");
-
-            const allSelected = contacts.every((_, i) =>
-                document.getElementById("chk" + i).checked
+            const anyUnchecked = contacts.some((_, i) =>
+                !document.getElementById("chk" + i).checked
             );
 
             contacts.forEach((_, i) => {
                 const chk = document.getElementById("chk" + i);
                 const card = document.getElementById("c" + i);
 
-                chk.checked = !allSelected;
-                card.classList.toggle("selected", !allSelected);
+                chk.checked = anyUnchecked;
+                card.classList.toggle("selected", anyUnchecked);
             });
 
             updateSendButtonState();
-            updateToggleAllButton();
-        }
-
-        function updateToggleAllButton() {
-            const toggleBtn = document.getElementById("toggleAllBtn");
-
-            const allSelected = contacts.every((_, i) =>
-                document.getElementById("chk" + i).checked
-            );
-
-            if (allSelected) {
-                toggleBtn.textContent = "Deseleccionar Todos";
-                toggleBtn.classList.remove("btn-blue");
-                toggleBtn.classList.add("btn-toggle-off");
-            } else {
-                toggleBtn.textContent = "Seleccionar Todos";
-                toggleBtn.classList.remove("btn-toggle-off");
-                toggleBtn.classList.add("btn-blue");
-            }
-        }
-
-        function showToast(message, type = "success") {
-            const toast = document.getElementById("toast");
-            toast.textContent = message;
-            toast.className = "toast show" + (type === "error" ? " error" : "");
-
-            setTimeout(() => {
-                toast.classList.remove("show");
-            }, 3500);
         }
 
         function sendSingle(i) {
@@ -581,22 +420,14 @@
         }
 
         function updateSendButtonState() {
-            const selectedCount = contacts.filter((_, i) =>
+            const anySelected = contacts.some((_, i) =>
                 document.getElementById("chk" + i).checked
-            ).length;
+            );
 
-            sendBtn.disabled = selectedCount === 0;
-
-            counter.style.transform = "scale(1.1)";
-            counter.textContent = selectedCount
-                ? `${selectedCount} seleccionados`
+            sendBtn.disabled = !anySelected;
+            counter.textContent = anySelected
+                ? `${contacts.filter((_, i) => document.getElementById("chk" + i).checked).length} seleccionados`
                 : "0 seleccionados";
-
-            setTimeout(() => {
-                counter.style.transform = "scale(1)";
-            }, 150);
-
-            updateToggleAllButton();
         }
 
         function renderHistory() {
@@ -612,94 +443,61 @@
         <td>${l.name}</td>
         <td>${formatPhone(l.phone)}</td>
         <td>${l.message}</td>
-        <td>
-  <span class="status ${l.status}">
-    ${l.status.toUpperCase()}
-  </span>
-</td>
+        <td style="color:${l.status === "enviado" ? "green" : "red"};font-weight:bold">
+          ${l.status.toUpperCase()}
+        </td>
       </tr>`;
             });
         }
 
         async function sendWhatsApp() {
-
             const msg = message.value.trim();
-            if (!msg) return showToast("Escribe un mensaje", "error");
+            if (!msg) return alert("Escribe un mensaje");
 
             overlay.style.display = "flex";
-
-            sendBtn.disabled = true;
-            sendBtn.querySelector("span").textContent = "Enviando...";
-
-            const forceClose = setTimeout(() => {
-                overlay.style.display = "none";
-                sendBtn.querySelector("span").textContent = "Enviar por WhatsApp";
-            }, 5000);
 
             try {
                 const selected = contacts.filter((_, i) =>
                     document.getElementById("chk" + i).checked
                 );
 
-                const res = await fetch(
-                    "https://ips-whatsapp-backend.onrender.com/send-whatsapp",
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: msg, phones: selected })
-                    }
-                );
+                const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: msg, phones: selected })
+                });
 
                 const data = await res.json();
 
+                // REGISTRAR HISTORIAL AL INSTANTE
                 data.accepted.forEach(r => {
                     messageLog.push({
-                        id: crypto.randomUUID(),
                         date: r.date,
                         name: r.name,
                         phone: r.phone,
                         message: msg,
-                        status: "pendiente"
+                        status: r.status
                     });
                 });
 
                 renderHistory();
                 message.value = "";
 
+                // LIMPIAR SELECCIÓN
                 document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
                 document.querySelectorAll('.contact').forEach(c => c.classList.remove("selected"));
                 updateSendButtonState();
 
-                showToast("Mensajes enviados correctamente");
-
             } catch (e) {
+                alert("Error al enviar mensajes");
                 console.error(e);
-                showToast("Error al enviar mensajes", "error");
             } finally {
-                clearTimeout(forceClose);
                 overlay.style.display = "none";
-                sendBtn.querySelector("span").textContent = "Enviar por WhatsApp";
             }
         }
 
         render()
-
-        document.querySelectorAll('.contact').forEach(c => {
-            c.style.animation = "none";
-            c.offsetHeight;
-            c.style.animation = "pulseSelect .25s ease";
-        });
-
-        setInterval(() => {
-            messageLog.forEach(m => {
-                if (m.status === "pendiente") m.status = "enviado";
-                else if (m.status === "enviado") m.status = "entregado";
-            });
-            renderHistory();
-        }, 4000);
     </script>
-
-    <div id="toast" class="toast">Mensajes enviados correctamente</div>
 
 </body>
 
