@@ -237,10 +237,30 @@
     <footer>© 2026 IPS – Innovación en Seguridad Patrimonial</footer>
 
     <script>
-        const contacts = [{ name: "Daniel Chávarri", phone: "+51946118245" },
-        { name: "Carlos Ibarra", phone: "+51921872052" },
-        { name: "Benjamin Cavero", phone: "+51996381644" },
-        ]
+        const contacts = [
+            {
+                name: "Daniel Chávarri",
+                phone: "+51946118245",
+                email: "daniel.chavarri@ips.com",
+                address: "Av. Principal 123, Lima",
+                role: "Supervisor IPS"
+            },
+            {
+                name: "Carlos Ibarra",
+                phone: "+51921872052",
+                email: "carlos.ibarra@ips.com",
+                address: "Jr. Central 456, Lima",
+                role: "Operador iCUR@"
+            },
+            {
+                name: "Benjamin Cavero",
+                phone: "+51996381644",
+                email: "benjamin.cavero@ips.com",
+                address: "Calle Norte 789, Lima",
+                role: "Seguridad Patrimonial"
+            }
+        ];
+
         const messageLog = []
         const container = document.getElementById("contacts")
         const history = document.getElementById("history")
@@ -254,24 +274,26 @@
 
         function render() {
             container.innerHTML = "";
+
             contacts.forEach((c, i) => {
                 container.innerHTML += `
 <div class="contact" id="c${i}" onclick="toggle(${i})">
-    <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
+  <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
 
-    <div class="avatar">${c.name[0]}</div>
+  <div class="avatar">${c.name[0]}</div>
 
-    <div class="contact-info">
-        <strong>${c.name}</strong><br>
-        <small>${formatPhone(c.phone)}</small>
-    </div>
+  <div class="contact-info">
+    <strong>${c.name}</strong><br>
+    <small>📞 ${formatPhone(c.phone)}</small><br>
+    <small>📧 ${c.email}</small><br>
+    <small>📍 ${c.address}</small>
+  </div>
 
-    <button class="wa-btn"
-        title="Enviar mensaje individual"
-        onclick="event.stopPropagation(); sendSingle(${i})">
-        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg"
-             alt="WhatsApp">
-    </button>
+  <button class="wa-btn"
+    title="Enviar mensaje individual"
+    onclick="event.stopPropagation(); sendSingle(${i})">
+    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg">
+  </button>
 </div>`;
             });
         }
