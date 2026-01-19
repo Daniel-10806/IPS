@@ -82,7 +82,6 @@
         .btn-green:disabled {
             background: #b7e6c9;
             cursor: not-allowed;
-            transform: none;
         }
 
         .grid {
@@ -98,12 +97,7 @@
             box-shadow: 0 8px 18px rgba(0, 0, 0, .1);
             border: 2px solid transparent;
             cursor: pointer;
-            transition: all .25s ease;
             position: relative;
-        }
-
-        .contact:hover {
-            transform: translateY(-4px);
         }
 
         .contact.selected {
@@ -132,13 +126,6 @@
             margin-bottom: 10px;
         }
 
-        .contact small {
-            display: block;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        /* LOADER */
         .overlay {
             position: fixed;
             inset: 0;
@@ -169,7 +156,6 @@
             background: #fff;
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, .2);
             max-width: 420px;
             text-align: center;
         }
@@ -194,7 +180,7 @@
 
         <div class="card">
             <h3>✈️ Componer Mensaje</h3>
-            <textarea id="message" placeholder="Escribe tu mensaje aquí..."></textarea>
+            <textarea id="message" maxlength="500" placeholder="Máx. 500 caracteres..."></textarea>
 
             <div class="actions">
                 <button class="btn-blue" onclick="toggleAll()">Seleccionar / Deseleccionar Todos</button>
@@ -203,7 +189,6 @@
         </div>
 
         <div class="grid" id="contacts"></div>
-
     </div>
 
     <div class="overlay" id="overlay">
@@ -213,7 +198,7 @@
 
     <div class="overlay" id="result">
         <div class="modal">
-            <h3>✅ Mensaje enviado</h3>
+            <h3>✅ Resultado del envío</h3>
             <p id="resultText"></p>
             <button class="btn-blue" onclick="closeResult()">Aceptar</button>
         </div>
@@ -224,11 +209,13 @@
     </footer>
 
     <script>
+        const messageLog = [];
+
         const contacts = [
-            { name: "Yhamir Chávarri", phone: "+51922109147", email: "yhamir@mail.com", address: "Av. Central 123" },
-            { name: "Emilio Chávarri", phone: "+51975385583", email: "emilio@mail.com", address: "Calle Norte 456" },
-            { name: "Sonia Zarzosa", phone: "+51947938310", email: "sonia@mail.com", address: "Jr. Lima 789" },
-            { name: "Daniel Chávarri", phone: "+51946118245", email: "daniel@mail.com", address: "Av. España 934" },
+            { name: "Yhamir Chávarri", phone: "+51922109147" },
+            { name: "Emilio Chávarri", phone: "+51975385583" },
+            { name: "Sonia Zarzosa", phone: "+51947938310" },
+            { name: "Daniel Chávarri", phone: "+51946118245" },
         ];
 
         const container = document.getElementById("contacts");
@@ -239,14 +226,12 @@
             container.innerHTML = "";
             contacts.forEach((c, i) => {
                 container.innerHTML += `
-      <div class="contact" id="c${i}" onclick="toggle(${i})">
-        <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
-        <div class="avatar">${c.name[0]}</div>
-        <h4>${c.name}</h4>
-        <small>📞 ${c.phone}</small>
-        <small>📧 ${c.email}</small>
-        <small>📍 ${c.address}</small>
-      </div>`;
+                <div class="contact" id="c${i}" onclick="toggle(${i})">
+                    <input type="checkbox" id="chk${i}" onclick="event.stopPropagation()">
+                    <div class="avatar">${c.name[0]}</div>
+                    <h4>${c.name}</h4>
+                    <small>📞 ${c.phone}</small>
+                </div>`;
             });
             updateState();
         }
@@ -277,28 +262,43 @@
             const msg = document.getElementById("message").value.trim();
             if (!msg) return alert("Escribe un mensaje");
 
-            const selected = contacts.filter((_, i) =>
-                document.getElementById("chk" + i).checked
-            );
-
+            const selected = contacts.filter((_, i) => document.getElementById("chk" + i).checked);
             document.getElementById("overlay").style.display = "flex";
 
-            await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: msg,
-                    phones: selected.map(c => ({
-                        name: c.name,
-                        phone: c.phone
-                    }))
-                })
-            });
+            try {
+                const res = await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: msg, phones: selected })
+                });
 
-            document.getElementById("overlay").style.display = "none";
-            document.getElementById("resultText").textContent =
-                "Mensaje enviado a: " + selected.map(p => p.name).join(", ");
-            document.getElementById("result").style.display = "flex";
+                const data = await res.json();
+
+                data.results.forEach(r => {
+                    if (r.status === "enviado") {
+                        messageLog.push({
+                            date: new Date().toISOString(),
+                            to: r.phone,
+                            name: r.name,
+                            message: msg
+                        });
+                    }
+                });
+
+                console.table(messageLog);
+
+                document.getElementById("resultText").innerHTML =
+                    `✔ Enviados: ${data.results.filter(r => r.status === "enviado").map(r => r.name).join(", ") || "—"}<br>
+                 ✖ Fallidos: ${data.results.filter(r => r.status === "error").map(r => r.name).join(", ") || "—"}`;
+
+                document.getElementById("result").style.display = "flex";
+
+            } catch (e) {
+                alert("Error enviando mensajes");
+                console.error(e);
+            } finally {
+                document.getElementById("overlay").style.display = "none";
+            }
         }
 
         function closeResult() {
@@ -307,6 +307,7 @@
 
         render();
     </script>
+
 </body>
 
 </html>
