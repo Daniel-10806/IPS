@@ -251,6 +251,20 @@
         #history td:nth-child(5) {
             text-align: left;
         }
+
+        .send-main-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            font-size: 14px;
+        }
+
+        .send-main-btn img {
+            width: 18px;
+            height: 18px;
+            filter: invert(1);
+        }
     </style>
 </head>
 
@@ -268,9 +282,10 @@
             <textarea id="message" maxlength="500" placeholder="Máx. 500 caracteres..."></textarea>
             <div class="actions">
                 <button class="btn-blue" onclick="toggleAll()">Seleccionar Todos</button>
-                <button class="btn-green" id="sendBtn" disabled onclick="sendWhatsApp()"><img
-                        src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg">
-                    Enviar por WhatsApp</button>
+                <button class="btn-green send-main-btn" id="sendBtn" disabled onclick="sendWhatsApp()">
+                    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg">
+                    <span>Enviar por WhatsApp</span>
+                </button>
             </div>
         </div>
 
