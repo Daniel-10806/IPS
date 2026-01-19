@@ -385,15 +385,17 @@
         }
 
         function toggle(i) {
-            const chk = document.getElementById("chk" + i)
-            chk.checked = !chk.checked
-            document.getElementById("c" + i).classList.toggle("selected", chk.checked)
-            sendBtn.disabled = !chk.checked
-            counter.textContent = chk.checked ? "1 seleccionado" : "0 seleccionados"
+            const chk = document.getElementById("chk" + i);
+            const card = document.getElementById("c" + i);
+
+            chk.checked = !chk.checked;
+            card.classList.toggle("selected", chk.checked);
+
+            updateSendButtonState();
         }
 
         function toggleAll() {
-            let anyUnchecked = contacts.some((_, i) =>
+            const anyUnchecked = contacts.some((_, i) =>
                 !document.getElementById("chk" + i).checked
             );
 
@@ -405,16 +407,27 @@
                 card.classList.toggle("selected", anyUnchecked);
             });
 
-            sendBtn.disabled = !anyUnchecked;
-            counter.textContent = anyUnchecked
-                ? `${contacts.length} seleccionados`
-                : "0 seleccionados";
+            updateSendButtonState();
         }
 
         function sendSingle(i) {
-            document.getElementById("chk" + i).checked = true;
-            toggle(i);
+            const chk = document.getElementById("chk" + i);
+            chk.checked = true;
+            document.getElementById("c" + i).classList.add("selected");
+
+            updateSendButtonState();
             message.focus();
+        }
+
+        function updateSendButtonState() {
+            const anySelected = contacts.some((_, i) =>
+                document.getElementById("chk" + i).checked
+            );
+
+            sendBtn.disabled = !anySelected;
+            counter.textContent = anySelected
+                ? `${contacts.filter((_, i) => document.getElementById("chk" + i).checked).length} seleccionados`
+                : "0 seleccionados";
         }
 
         function renderHistory() {
