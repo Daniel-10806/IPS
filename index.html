@@ -277,18 +277,27 @@
             const msg = document.getElementById("message").value.trim();
             if (!msg) return alert("Escribe un mensaje");
 
-            const phones = contacts.filter((_, i) => document.getElementById("chk" + i).checked);
+            const selected = contacts.filter((_, i) =>
+                document.getElementById("chk" + i).checked
+            );
+
             document.getElementById("overlay").style.display = "flex";
 
             await fetch("https://ips-whatsapp-backend.onrender.com/send-whatsapp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: msg, phones: phones.map(p => p.phone) })
+                body: JSON.stringify({
+                    message: msg,
+                    phones: selected.map(c => ({
+                        name: c.name,
+                        phone: c.phone
+                    }))
+                })
             });
 
             document.getElementById("overlay").style.display = "none";
             document.getElementById("resultText").textContent =
-                "Mensaje enviado a: " + phones.map(p => p.name).join(", ");
+                "Mensaje enviado a: " + selected.map(p => p.name).join(", ");
             document.getElementById("result").style.display = "flex";
         }
 
@@ -298,7 +307,6 @@
 
         render();
     </script>
-
 </body>
 
 </html>
