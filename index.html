@@ -314,7 +314,7 @@
         <div class="spinner"></div>
     </div>
 
-    <footer>© 2026 IPS – Innovación en Seguridad Patrimonial</footer>
+    <footer>© 2026 IPS – Ingenieria, Proyectos Y Seguridad Global SAC </footer>
 
     <script>
         const contacts = [
@@ -469,7 +469,8 @@
 
                 const data = await res.json();
 
-                data.results.forEach(r => {
+                // REGISTRAR HISTORIAL AL INSTANTE
+                data.accepted.forEach(r => {
                     messageLog.push({
                         date: r.date,
                         name: r.name,
@@ -481,6 +482,11 @@
 
                 renderHistory();
                 message.value = "";
+
+                // LIMPIAR SELECCIÓN
+                document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+                document.querySelectorAll('.contact').forEach(c => c.classList.remove("selected"));
+                updateSendButtonState();
 
             } catch (e) {
                 alert("Error al enviar mensajes");
